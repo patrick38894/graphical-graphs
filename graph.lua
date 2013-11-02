@@ -9,6 +9,7 @@ vertexmt.__index = vertexmt
 vertex = function(data)
 	local v = {}
 	v.data = data
+	v.color = {r = 255, g = 0, b = 0}
 	v.visit = false
 	v.edges = {}
 	return setmetatable(v,vertexmt)
@@ -41,7 +42,7 @@ function graphmt:draw()
 				love.graphics.line(i.data.x, i.data.y, self[j.dest].data.x, self[j.dest].data.y)
 			end
 		end
-		love.graphics.setColor(255,0,0)
+		love.graphics.setColor(i.color.r, i.color.g, i.color.b)
 		love.graphics.circle("fill",i.data.x,i.data.y,radius, 50);
 	end
 	for _,i in pairs(self) do
