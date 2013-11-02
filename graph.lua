@@ -26,6 +26,10 @@ graph = function()
 	return setmetatable(g,graphmt)
 end
 
+function graphmt:add(data)
+	self[#self+1] = vertex(data)
+end
+
 function graphmt:draw()
 	love.graphics.setBackgroundColor(255,255,255)
 	love.graphics.clear()
@@ -38,8 +42,8 @@ function graphmt:draw()
 		i.visit = true
 		love.graphics.setColor(0,0,0)
 		for _,j in pairs(i.edges) do
-			if self[j.dest].visit == false then
-				love.graphics.line(i.data.x, i.data.y, self[j.dest].data.x, self[j.dest].data.y)
+			if j.dest.visit == false then
+				love.graphics.line(i.data.x, i.data.y, j.dest.data.x, j.dest.data.y)
 			end
 		end
 		love.graphics.setColor(i.color.r, i.color.g, i.color.b)
