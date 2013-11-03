@@ -1,10 +1,10 @@
 dofile "graph.lua"
 require "math"
 
-local g = graph()
-
-
-selection = nil
+function love.load()
+	g = graph()
+	selection = nil
+end
 
 function love.mousepressed(x,y,button)
 	local radius = 10
@@ -12,7 +12,7 @@ function love.mousepressed(x,y,button)
 		if selection then
 			selection.color = {r = 255, g = 0, b = 0}
 		end
-		for _,i in pairs(g) do
+		for _,i in ipairs(g) do
 			if math.sqrt(math.pow(x-i.data.x,2) + math.pow(y-i.data.y,2)) <= radius then
 				selection = i
 				i.color = {r = 0, g = 0, b = 255}
@@ -24,7 +24,7 @@ function love.mousepressed(x,y,button)
 		if not selection then
 			return
 		end
-		for _,i in pairs(g) do
+		for _,i in ipairs(g) do
 			local distance = math.sqrt(math.pow(x-i.data.x,2) + math.pow(y-i.data.y,2)) 
 			if distance <= radius then
 				selection:connect(i,distance)
@@ -42,3 +42,13 @@ end
 
 function love.update(dt)
 end
+
+function love.keypressed(key, isrepeat)
+	if key == "return" then
+		g:showall()
+	end
+	if key == "escape" then
+		g = graph()
+	end
+end
+
