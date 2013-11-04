@@ -30,12 +30,37 @@ graph = function()
 	local g = {}
 	g.eq_matrix = {}
 	g.cost_matrix = {}
+	g.path_mat = {}
 	return setmetatable(g,graphmt)
 end
 
 function graphmt:add(data)
 	self[#self+1] = vertex(data)
 	self:update_matrices()
+end
+
+function graphmt:shortest_path(start,finish)
+	local starti = 0
+	local finishi = 0
+	for i,ii in ipairs(self) do
+		if ii == start then
+			starti = i
+		end
+		if ii == finish then
+			finishi = i
+		end
+	end
+	print(starti)
+	print(finishi)
+	if starti == 0 or finishi == 0 then
+		return
+	end
+	starti = self.path_mat[starti][finishi]
+	while starti ~= finishi and starti ~= 0 do
+		self[starti].color = {r = 0, g = 255, b = 0}
+		starti = self.path_mat[starti][finishi]
+	end
+	self[finishi].color = {r = 0, g = 0, b = 255}
 end
 
 function graphmt:update_matrices()
@@ -62,7 +87,46 @@ function graphmt:update_matrices()
 			end
 		end
 	end
+	self:update_cost_matrix()
+	self:update_path_mat()
 end
+
+function graphmt:update_cost_matrix()
+	local infinity = 32000
+	self.cost_matrix = {}
+	for i in ipairs(self) do
+		self.cost_matrix[i] = {}
+		for j in ipairs(self) do
+			self.cost_matrix[i][j] = infinity
+		end
+		for _,j in pairs(self[i].edges) do
+			for k,kk in ipairs(self) do
+				if kk == j.dest then
+					self.cost_matrix[i][k] = j.cost
+					break
+				end
+			end
+		end
+		self.cost_matrix[i][i] = 0
+	end
+	self:show_cost_matrix()
+end
+
+function graphmt:show_cost_matrix()
+	for i in ipairs(self.cost_matrix) do
+		local words = " "
+		for j in ipairs(self.cost_matrix) do
+			words = words .. tostring(self.cost_matrix[i][j]) .. " "
+		end
+		print(words)
+	end
+end
+			
+
+
+
+
+
 
 function graphmt:showmatrix() 
 	for i in ipairs(self.eq_matrix) do
@@ -91,10 +155,38 @@ function graphmt:showall()
 	end
 end
 
-function graphmt:shortest_path(start,finish)
+function graphmt:update_path_mat()
+	local cost_mat = {}
+	self.path_mat = {}
+	for i in ipairs(self) do
+		self.path_mat[i] = {}
+		cost_mat[i] = {}
+		for j in ipairs(self) do
+			self.path_mat[i][j] = 0
+			cost_mat[i][j] = self.cost_matrix[i][j]
+		end
+	end
 	
-
+	for i in ipairs(self) do
+		for j in ipairs(self) do
+			for k in ipairs(self) do
+				if cost_mat[j][i] + cost_mat[i][k] < cost_mat[j][k] then
+					cost_mat[j][k] = cost_mat[j][i] + cost_mat[i][k]
+					self.path_mat[j][k] = i
+				end
+			end
+		end
+	end
+	for i in ipairs(self.path_mat) do
+		local words = " "
+		for j in ipairs(self.path_mat) do
+			words = words .. tostring(self.path_mat[i][j]) .. " "
+		end
+		print(words)
+	end
 end
+			
+
 
 function graphmt:draw()
 	love.graphics.setBackgroundColor(255,255,255)
